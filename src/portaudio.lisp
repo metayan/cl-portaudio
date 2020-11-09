@@ -185,7 +185,7 @@
 (defmethod initialize-instance :after
     ((inst host-error-info) &key pointer)
   (with-foreign-slots ((host-api-type error-code error-text) pointer
-                       host-error-info)
+                       (:struct host-error-info))
     (setf (slot-value inst 'host-api-type) host-api-type)
     (setf (slot-value inst 'error-code) error-code)
     (setf (slot-value inst 'error-text) error-text)))
@@ -300,7 +300,7 @@ The default output device index for the default host API, or raise no-device if 
                                        max-output-channels default-low-input-latency
                                        default-low-output-latency default-high-input-latency
                                        default-high-output-latency default-sample-rate)
-                       pointer device-info)
+                       pointer (:struct device-info))
      (setf (slot-value inst 'struct-version) struct-version)
      (setf (slot-value inst 'name) name)
      (setf (slot-value inst 'host-api) host-api)
@@ -405,25 +405,25 @@ A object of @class{device-info}. If the device parameter is out of range the fun
 (defmethod translate-from-foreign (value (type p-stream-parameters))
   (unless (null-pointer-p value)
     (let ((stream-parameters (make-instance 'stream-parameters)))
-      (setf (slot-value stream-parameters 'device) (foreign-slot-value value 'stream-parameters 'device)
-            (slot-value stream-parameters 'channel-count) (foreign-slot-value value 'stream-parameters 'channel-count)
+      (setf (slot-value stream-parameters 'device) (foreign-slot-value value '(:struct stream-parameters) 'device)
+            (slot-value stream-parameters 'channel-count) (foreign-slot-value value '(:struct stream-parameters) 'channel-count)
             (slot-value stream-parameters 'sample-format) (car
                                                            (foreign-bitfield-symbols
                                                             'sample-format
-                                                            (foreign-slot-value value 'stream-parameters 'sample-format)))
-            (slot-value stream-parameters 'suggested-latency) (foreign-slot-value value 'stream-parameters 'suggested-latency))
+                                                            (foreign-slot-value value '(:struct stream-parameters) 'sample-format)))
+            (slot-value stream-parameters 'suggested-latency) (foreign-slot-value value '(:struct stream-parameters) 'suggested-latency))
       stream-parameters)))
 
 (defmethod translate-to-foreign (value (type p-stream-parameters))
   (if value
-      (let ((parameters (foreign-alloc 'stream-parameters)))
-        (setf (foreign-slot-value parameters 'stream-parameters 'device) (slot-value value 'device)
-              (foreign-slot-value parameters 'stream-parameters 'channel-count) (slot-value value 'channel-count)
-              (foreign-slot-value parameters 'stream-parameters 'sample-format) (foreign-bitfield-value
+      (let ((parameters (foreign-alloc '(:struct stream-parameters))))
+        (setf (foreign-slot-value parameters '(:struct stream-parameters) 'device) (slot-value value 'device)
+              (foreign-slot-value parameters '(:struct stream-parameters) 'channel-count) (slot-value value 'channel-count)
+              (foreign-slot-value parameters '(:struct stream-parameters) 'sample-format) (foreign-bitfield-value
                                                                                  'sample-format
                                                                                  (list (slot-value value 'sample-format)))
-              (foreign-slot-value parameters 'stream-parameters 'suggested-latency) (slot-value value 'suggested-latency)
-              (foreign-slot-value parameters 'stream-parameters 'host-api-specific-stream-info) (null-pointer))
+              (foreign-slot-value parameters '(:struct stream-parameters) 'suggested-latency) (slot-value value 'suggested-latency)
+              (foreign-slot-value parameters '(:struct stream-parameters) 'host-api-specific-stream-info) (null-pointer))
         parameters)
       (null-pointer)))
 
@@ -497,7 +497,7 @@ The default input device index for the default host API, or raise no-device if n
     ((inst host-api-info) &key pointer)
   (with-foreign-slots ((struct-version type name device-count
                                        default-input-device default-output-device)
-                       pointer host-api-info)
+                       pointer (:struct host-api-info))
     (setf (slot-value inst 'struct-version) struct-version)
     (setf (slot-value inst 'type) type)
     (setf (slot-value inst 'name) name)
@@ -871,7 +871,7 @@ On success NIL will be returned, or :output-underflowed if additional output dat
     ((inst stream-info) &key pointer)
   (with-foreign-slots ((struct-version input-latency output-latency
                                        sample-rate)
-                       pointer stream-info)
+                       pointer (:struct stream-info))
     (setf (slot-value inst 'struct-version) struct-version)
     (setf (slot-value inst 'input-latency) input-latency)
     (setf (slot-value inst 'output-latency) output-latency)
